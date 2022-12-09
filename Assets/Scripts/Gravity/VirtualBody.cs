@@ -2,40 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VirtualBody : IGravityObject {
+public class VirtualBody : IGravityObject
+{
 
-    public Vector2 velocity { get; protected set; } 
-    public Vector2 position { get; protected set; }
-    public float mass { get; protected set; }
+    private Vector2 velocity;
+    private Vector2 position;
+    private float mass;
 
-    private GravityObject coupledGravityObject;
+    public Vector2 Velocity { get { return velocity; } }
+    public Vector2 Position { get { return position; } }
+    public float Mass { get { return mass; } }
+
+    private GravityBody coupledGravityObject;
 
 
-    public VirtualBody (GravityObject coupledGravityObject) {
+    public VirtualBody(GravityBody coupledGravityObject)
+    {
         this.velocity = coupledGravityObject.initialVelocity;
-        this.position = coupledGravityObject.position;
-        this.mass = coupledGravityObject.mass;
+        this.position = coupledGravityObject.Position;
+        this.mass = coupledGravityObject.Mass;
         this.coupledGravityObject = coupledGravityObject;
     }
 
-    public void CalculateAcceleration (IGravityObject gravitySourceObject, float timeStep) {
-        float sqrDst = (gravitySourceObject.position - this.position).sqrMagnitude;
-        Vector2 forceDir = (gravitySourceObject.position - this.position).normalized;
-        Vector2 acceleration = forceDir * Universe.gravitationalConstant * gravitySourceObject.mass / sqrDst;
+    public void CalculateGravityAcceleration(IGravityObject gravitySourceObject, float timeStep)
+    {
+        float sqrDst = (gravitySourceObject.Position - this.Position).sqrMagnitude;
+        Vector2 forceDir = (gravitySourceObject.Position - this.Position).normalized;
+        Vector2 acceleration = forceDir * Universe.gravitationalConstant * gravitySourceObject.Mass / sqrDst;
 
         velocity += acceleration * timeStep;
     }
 
-    public void UpdatePosition (float timeStep) {
-        position = (position + velocity * timeStep);
+    public void UpdatePosition(float timeStep)
+    {
+        position = (Position + Velocity * timeStep);
     }
 
-    public void EmittingGravity (IGravityObject[] gravityObjects, float timeStep) {
+    public void EmittingGravity(List<IGravityObject> gravityObjects, float timeStep)
+    {
         coupledGravityObject.EmittingGravity(this, gravityObjects, timeStep);
     }
 
-    public void EmittingGravity (IGravityObject emittingBody, IGravityObject[] gravityObjects, float timeStep) {
+    public void EmittingGravity(IGravityObject emittingBody, List<IGravityObject> gravityObjects, float timeStep)
+    {
         coupledGravityObject.EmittingGravity(emittingBody, gravityObjects, timeStep);
     }
-
 }

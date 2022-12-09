@@ -4,36 +4,47 @@ using UnityEngine;
 
 public class NBodySimulation : MonoBehaviour
 {
-    GravityObject[] bodies;
+    List<IGravityObject> bodies;
     static NBodySimulation instance;
 
+    public bool displayCenterOfMass = false;
+
     // Start is called before the first frame update
-    void Awake() {
-        bodies = FindObjectsOfType<GravityObject> ();
+    void Awake()
+    {
+        bodies = new List<IGravityObject>(FindObjectsOfType<ComplexObject>());
         Time.fixedDeltaTime = Universe.physicsTimeStep;
-        Debug.Log ("Setting fixedDeltaTime to: " + Universe.physicsTimeStep);
+        Debug.Log("Setting fixedDeltaTime to: " + Universe.physicsTimeStep);
     }
 
-    void FixedUpdate () {
-        for (int i = 0; i < bodies.Length; i++) {
-            bodies[i].EmittingGravity(Universe.physicsTimeStep);
+    void FixedUpdate()
+    {
+        foreach (ComplexObject body in bodies)
+        {
+            body.EmittingGravity(Universe.physicsTimeStep);
         }
 
-        for (int i = 0; i < bodies.Length; i++) {
-            bodies[i].UpdatePosition (Universe.physicsTimeStep);
+        foreach (ComplexObject body in bodies)
+        {
+            body.UpdatePosition(Universe.physicsTimeStep);
         }
     }
 
-    public static GravityObject[] Bodies {
-        get {
+    public static List<IGravityObject> Bodies
+    {
+        get
+        {
             return Instance.bodies;
         }
     }
 
-    static NBodySimulation Instance {
-        get {
-            if (instance == null) {
-                instance = FindObjectOfType<NBodySimulation> ();
+    static NBodySimulation Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<NBodySimulation>();
             }
             return instance;
         }

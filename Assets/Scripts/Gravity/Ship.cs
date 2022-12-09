@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ship : GravityObject {
+public class Ship : GravityBody {
     
     public float engineTrust = 0.0001f;
     public float rotationTrust = 0.1f;
@@ -13,8 +13,8 @@ public class Ship : GravityObject {
     private void Update() {  
         SpaceShipMovement();
 
-        velocity += _acceleration;
-        transform.rotation = Quaternion.Euler(0, 0, this._rotation);
+        //rb.AddForce(_acceleration * Time.deltaTime);
+        //transform.rotation = Quaternion.Euler(0, 0, this._rotation);
     } 
 
     private void SpaceShipMovement() {

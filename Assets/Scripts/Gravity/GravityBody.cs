@@ -2,28 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
-[RequireComponent(typeof(Rigidbody2D))]
-public class GravityObject : MonoBehaviour, IGravityObject
+public class GravityBody : MonoBehaviour, IGravityObject
 {
 
     public Vector2 initialVelocity;
-    public Vector2 Velocity { get; protected set; }
-    public Vector2 RBvelocity;
-    public Vector2 Position { get { return rb.position; } }
     public float mass;
-    public float Mass { get; protected set; }
 
-    private bool isRigidbody;
-    Rigidbody2D rb;
+    protected Rigidbody2D rb;
+    public Rigidbody2D Rigidbody { get { return rb; } }
 
     void Awake()
     {
-        if (isRigidbody = TryGetComponent<Rigidbody2D>(out rb))
-        {
-            rb.mass = mass;
-        }
+        rb = GetComponent<Rigidbody2D>();
 
+        rb.mass = mass;
         Velocity = initialVelocity;
     }
 
@@ -32,15 +24,15 @@ public class GravityObject : MonoBehaviour, IGravityObject
     {
         float sqrDst = (gravitySourceObject.Position - this.Position).sqrMagnitude;
         Vector2 forceDir = (gravitySourceObject.Position - this.Position).normalized;
-        Vector2 acceleration = forceDir * Universe.gravitationalConstant * gravitySourceObject.Mass / sqrDst;
+        Vector2 acceleration = forceDir * Universe.gravitationalConstant * gravitySourceObject.Mass / sqrDst; //E = G*M/r^2
 
-        Velocity += acceleration * timeStep;
+        rb.AddForce(acceleration * timeStep * mass * 100);    // F = E*m
     }
 
     public void UpdatePosition(float timeStep)
     {
-        RBvelocity = rb.velocity;
-        rb.MovePosition(Position + Velocity * timeStep);
+        //RBvelocity = rb.velocity;
+        //rb.MovePosition (Position + Velocity * timeStep);
     }
 
     public virtual void EmittingGravity(IGravityObject emittingBody, List<IGravityObject> gravityObjects, float timeStep) { }
@@ -55,12 +47,37 @@ public class GravityObject : MonoBehaviour, IGravityObject
         this.EmittingGravity(this, gravityObjects, timeStep);
     }
 
-    public Rigidbody2D Rigidbody
+    public Vector2 Velocity
     {
         get
         {
-            return rb;
+            if (rb)
+                return rb.velocity;
+            else
+                return initialVelocity;
+        }
+        set { rb.velocity = value; }
+    }
+
+    public Vector2 Position
+    {
+        get
+        {
+            if (rb)
+                return rb.position;
+            else
+                return transform.position;
         }
     }
 
+    public float Mass
+    {
+        get
+        {
+            if (rb)
+                return rb.mass;
+            else
+                return mass;
+        }
+    }
 }
